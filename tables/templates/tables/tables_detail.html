@@ -1,0 +1,158 @@
+{% extends 'attendance/base.html' %}
+
+{% block title %}
+Bavaria Stube | {{ object.name }}
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-center mb-4">{{ object.name }}</h1>
+
+    {% if object.picture %}
+    <div class="text-center mb-4">
+        <img src="{{ object.picture.url }}" alt="{{ object.name }}"
+             style="height: 250px; width: auto; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+    </div>
+    {% endif %}
+
+    <div class="bg-light p-4 rounded shadow-sm">
+        <p><strong>Вместимость:</strong> {{ object.number_of_seats }}</p>
+        <p><strong>Расположение:</strong> {{ object.location }}</p>
+        <p>{{ object.description }}</p>
+
+        <div class="mt-5">
+            <h3>Время брони для столика № {{ object.numbers }} на <span id="selected-date">{{ date_str }}</span></h3>
+
+            <form method="get" id="date-form" class="mb-4">
+                <label for="date">Выберите дату:</label>
+                <input type="date" id="date" name="date" value="{{ date|date:'Y-m-d' }}" min="{{ today|date:'Y-m-d' }}" max="{{ max_date }}">
+                <button type="submit" class="btn btn-primary btn-sm ms-2">Показать</button>
+            </form>
+
+            <div id="loading-spinner" class="text-center" style="display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Загрузка...</span>
+                </div>
+            </div>
+
+            <div id="slots-container">
+                <ul class="list-group mx-auto" style="max-width: 500px;">
+                    {% for slot in slots %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ slot.time }}
+                        {% if slot.status == 'free' %}
+                            <span class="badge bg-success">Свободно</span>
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'booking:booking_create' object.numbers %}?date={{ date|date:'Y-m-d' }}&time={{ slot.time }}"
+                                   class="btn btn-sm btn-outline-success ms-3">Забронировать</a>
+                            {% else %}
+                                {% url 'users:login' as login_url %}
+                                {% with booking_url=request.path|add:"?date="|add:date|date:"Y-m-d"|add:"&time="|add:slot.time %}
+                                    <a href="{{ login_url }}?next={{ booking_url|urlencode }}"
+                                       class="btn btn-sm btn-outline-success ms-3">Забронировать</a>
+                                {% endwith %}
+                            {% endif %}
+                        {% else %}
+                            <span class="badge bg-danger">Занято</span>
+                        {% endif %}
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item">Нет доступных слотов.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        {% if perms.tables.change_table or perms.tables.delete_table %}
+        <div class="mt-4 mb-3">
+            <div class="btn-group" role="group">
+                {% if perms.tables.change_table %}
+                <a class="btn btn-warning" href="{% url 'tables:tables_update' object.pk %}" role="button">
+                    <i class="bi bi-pencil-square"></i> Редактировать
+                </a>
+                {% endif %}
+                {% if perms.tables.delete_table %}
+                <a class="btn btn-outline-danger" href="{% url 'tables:tables_delete' object.pk %}" role="button">
+                    <i class="bi bi-trash"></i> Удалить
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <hr>
+
+        <p class="text-muted mb-1"><small>Последнее изменение: {{ object.updated_at }}</small></p>
+        <p class="text-muted"><small>Добавлен: {{ object.created_at }}</small></p>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dateForm = document.getElementById('date-form');
+    const dateInput = document.getElementById('date');
+    const slotsContainer = document.getElementById('slots-container');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const selectedDateSpan = document.getElementById('selected-date');
+
+    // Функция для получения CSRF-токена
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    dateForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        loadSlots(dateInput.value);
+    });
+
+    function loadSlots(date) {
+        loadingSpinner.style.display = 'block';
+        slotsContainer.style.display = 'none';
+
+        // Форматируем дату из "YYYY-MM-DD" в "DD.MM.YYYY"
+        const formattedDate = date.split('-').reverse().join('.');
+        selectedDateSpan.textContent = formattedDate;
+
+        const url = `{% url 'tables:tables_detail' object.pk %}?date=${date}`;
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCookie('csrftoken')  // Добавляем CSRF-токен
+            },
+            credentials: 'include'  // Важно для передачи cookies
+        })
+        .then(response => response.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newSlotsContainer = doc.getElementById('slots-container');
+            if (newSlotsContainer) {
+                slotsContainer.innerHTML = newSlotsContainer.innerHTML;
+            }
+
+            loadingSpinner.style.display = 'none';
+            slotsContainer.style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            loadingSpinner.style.display = 'none';
+            slotsContainer.style.display = 'block';
+            slotsContainer.innerHTML = '<div class="alert alert-danger">Ошибка загрузки данных. Пожалуйста, попробуйте еще раз.</div>';
+        });
+    }
+});
+</script>
+
+{% endblock %}

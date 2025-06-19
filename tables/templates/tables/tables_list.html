@@ -1,0 +1,67 @@
+{% extends 'attendance/base.html' %}
+
+{% block title %}
+Bavaria Stube | Наши столики
+{% endblock %}
+
+{% block content %}
+
+<section id="tables" class="mb-5 animate-fade">
+    <h2 class="section-title">Наши столики</h2>
+
+    <p>Найдено столиков: {{ tables|length }}</p>
+
+    {% if tables %}
+    <div class="container">
+        <div class="row justify-content-center g-4">
+            {% for table in tables %}
+            <div class="col-12 col-md-4 d-flex justify-content-center">
+                <div class="card text-center d-flex flex-column">
+                    <div class="card-header ">
+                        <i class="bi bi-table"></i>
+                        <h5 class="mt-2">Столик №{{ table.numbers }}</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if table.picture %}
+                        <img src="{{ table.picture.url }}" alt="Столик №{{ table.numbers }}" class="img-fluid rounded">
+                        {% endif %}
+
+                        <div class="text-content">
+                            <p class="card-text mb-2">
+                                <strong>Мест:</strong> {{ table.number_of_seats }}<br>
+                                {% if table.location %}
+                                <strong>Расположение:</strong> {{ table.location }}<br>
+                                {% endif %}
+                                {% if table.description %}
+                                {{ table.description }}<br>
+                                {% endif %}
+
+
+                            </p>
+                        </div>
+                    </div>
+
+
+                    <div class="card-footer">
+                        <a href="{% url 'tables:tables_detail' table.pk %}" class="btn btn-danger btn-sm btn-custom">Подробнее</a>
+                    </div>
+                    <div class="card-footer">
+                    </div>
+
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <p>В данный момент информация о столиках обновляется.</p>
+    {% endif %}
+
+    {% if perms.tables.add_table %}
+    <div class="text-center mt-3 mb-4">
+        <a href="{% url 'tables:tables_create' %}" class="btn btn-warning btn-custom shadow rounded-pill px-4 py-2">Добавить
+            столик</a>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
