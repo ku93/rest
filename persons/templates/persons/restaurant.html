@@ -1,0 +1,161 @@
+{% extends 'attendance/base.html' %}
+
+{% load static %}
+
+{% block title %} Bavaria Stube | О ресторане{% endblock %}
+
+{% block content %}
+
+
+
+
+<section id="about" class="mb-5 animate-fade">
+    <h2 class="section-title">О ресторане Bavaria Stube</h2>
+    <p>
+        На тихой окраине города, где шум сменяется спокойствием зелёных улиц, находится Bavaria Stube —
+        настоящий уголок Баварии, созданный с любовью и уважением к традициям. Основанный в 2025 году, этот ресторан
+        стал местом, где каждый гость может ощутить атмосферу традиционного баварского гасхауса и насладиться
+        аутентичными блюдами, приготовленными по старинным семейным рецептам.
+    </p>
+    <p>
+        История Bavaria Stube начинается с шеф-повара Якоба Мюллера, уроженца Мюнхена. Его путь к созданию ресторана был
+        необычным и вдохновляющим. Во время одного из гастрономических фестивалей в Германии Якоб познакомился с
+        предпринимателем из России, который был очарован баварской кухней и культурой. В ходе общения между ними
+        родилась идея — открыть в России ресторан, который передаст атмосферу и традиции Баварии, но при этом станет
+        особенным местом встречи культур.
+    </p>
+    <p>
+        Якоб давно мечтал попробовать свои силы за пределами Германии и познакомиться с новой страной и её людьми.
+        Получив предложение от нового знакомого, он решил переехать и начать новую главу своей карьеры. Своим опытом и
+        страстью к кулинарии он хотел не только делиться аутентичными рецептами, но и внести частичку баварской души в
+        местную гастрономическую культуру.
+    </p>
+    <p>
+        Выбор места для Bavaria Stube пал на тихую окраину города, где можно создать атмосферу уюта и спокойствия,
+        напоминающую о родных баварских гасхаусах. Здесь гости могут отдохнуть от городской суеты и насладиться свежими
+        блюдами, многие ингредиенты для которых Якоб лично выбирает и импортирует из Мюнхена и окрестностей — от
+        ароматных трав до свежайшего мяса и сыра.
+    </p>
+    <p>
+        В Bavaria Stube каждое блюдо — это не просто еда, а маленькая история, рассказанная через вкусы и ароматы.
+        Свежий хрустящий хлеб, сочная свиная рулька с золотистой корочкой, нежные кнедлики и ароматный шнапс создают
+        уникальный гастрономический опыт. Вечерами ресторан наполняется тихим смехом, живой музыкой и теплом дружеских
+        встреч.
+    </p>
+    <p>
+        Bavaria Stube — это больше, чем ресторан. Это место, где традиции встречаются с современностью, где каждый гость
+        становится частью большой семьи, объединённой любовью к настоящей баварской кухне и атмосфере. Приходите и
+        откройте для себя кусочек Баварии — спокойный, уютный и наполненный душой уголок в вашем городе.
+    </p>
+</section>
+
+<section id="mission-values" class="mb-5 animate-fade">
+    <h2 class="section-title">Миссия и ценности</h2>
+    <p>
+        Наша миссия — приносить в каждый дом и сердце частичку настоящей Баварии через аутентичную кухню, тёплую
+        атмосферу и искреннее гостеприимство. Мы стремимся создавать место, где традиции и культура встречаются с
+        современностью, объединяя людей разных национальностей и возрастов.
+    </p>
+    <ul>
+        <li><strong>Аутентичность:</strong> Мы сохраняем традиционные рецепты и используем только качественные
+            ингредиенты из Баварии.
+        </li>
+        <li><strong>Гостеприимство:</strong> Для нас каждый гость — член большой семьи, и мы заботимся о его комфорте и
+            хорошем настроении.
+        </li>
+        <li><strong>Качество:</strong> Высокие стандарты приготовления и сервиса — основа нашего успеха.</li>
+        <li><strong>Культурный обмен:</strong> Мы создаём пространство для дружеских встреч и знакомства с баварской
+            культурой в России.
+        </li>
+        <li><strong>Ответственность:</strong> Забота об окружающей среде и поддержка локальных поставщиков — важная
+            часть нашей деятельности.
+        </li>
+    </ul>
+</section>
+
+<section id="team" class="mb-5 animate-fade">
+    <h2 class="section-title"><a href="{% url 'persons:employee_list' %}" class="text-reset text-decoration-none">Наша команда</a></h2>
+
+    {% if employees %}
+    <div class="swiper mySwiper">
+        <div class="swiper-wrapper">
+            {% for employee in employees %}
+            <div class="swiper-slide d-flex justify-content-center">
+                <div class="card text-center d-flex flex-column" style="height: 650px; width: 100%; max-width: 420px;">
+                    <div class="card-header">
+                        <i class="bi bi-person-circle fs-1"></i>
+                    </div>
+                    <div class="card-body d-flex flex-column flex-grow-1 overflow-hidden">
+                        <a href="{% url 'persons:employee_detail' employee.pk %}" class="text-reset text-decoration-none d-flex flex-column h-100">
+                            {% if employee.photo %}
+                            <img src="{{ employee.photo.url }}" alt="{{ employee.name|default:'Сотрудник' }}"
+                                 class="img-fluid mb-3 rounded" style="max-height: 250px; object-fit: cover;">
+                            {% endif %}
+                            <h5 class="card-title">{{ employee.name }}</h5>
+                            <p class="card-text flex-grow-1 overflow-auto mb-2">
+                                <strong>{{ employee.post }}</strong><br>
+                                {% if employee.full_years %}
+                                <strong>Возраст: </strong>{{ employee.full_years }} <br>
+                                {% endif %}
+                                {{ employee.description }}<br>
+                                <strong>Опыт работы:</strong> {{ employee.getting_started|timesince }}.<br>
+                                <strong>Работает в ресторане:</strong> {{ employee.getting_started_in_restaurant|timesince }}
+                            </p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+
+        <div class="swiper-pagination"></div>
+    </div>
+    {% else %}
+    <p>В данный момент раздел о сотрудниках обновляется.</p>
+    {% endif %}
+    {% if perms.persons.add_employee %}
+    <div class="text-center mt-2 mb-4">
+        <a href="{% url 'persons:employee_create' %}" class="btn btn-warning">Добавить сотрудника</a>
+    </div>
+    {% endif %}
+</section>
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const swiper = new Swiper(".mySwiper", {
+            slidesPerView: 3,
+            spaceBetween: 30,
+            navigation: {
+                nextEl: ".swiper-button-next",
+                prevEl: ".swiper-button-prev",
+            },
+            pagination: {
+                el: ".swiper-pagination",
+                clickable: true,
+            },
+            breakpoints: {
+                320: {
+                    slidesPerView: 1,
+                    spaceBetween: 10,
+                },
+                576: {
+                    slidesPerView: 2,
+                    spaceBetween: 20,
+                },
+                992: {
+                    slidesPerView: 3,
+                    spaceBetween: 30,
+                },
+            },
+        });
+    });
+</script>
+
+{% endblock %}
