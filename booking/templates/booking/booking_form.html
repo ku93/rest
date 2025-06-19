@@ -1,0 +1,102 @@
+{% extends 'attendance/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="container" style="max-width: 500px;">
+        {% if messages %}
+        <div>
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <h2 class="text-center mb-4">
+            {% if is_update %}Редактирование{% else %}Создание{% endif %} бронирования: "{{ table.name }}"
+        </h2>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="table" value="{{ table.id }}">
+
+            <!-- Поле даты -->
+            <div class="mb-3">
+                <label for="id_date" class="form-label">Дата бронирования</label>
+                <input type="date" name="date" id="id_date"
+                       class="form-control"
+                       value="{{ selected_date|date:'Y-m-d' }}"
+                       min="{{ today|date:'Y-m-d' }}"
+                       max="{{ max_date|date:'Y-m-d' }}" required>
+            </div>
+
+            <!-- Поле времени -->
+            <div class="mb-3">
+                <label for="id_time" class="form-label">Время бронирования</label>
+                <select name="time" id="id_time" class="form-select" required>
+                    {% for slot in slots %}
+                    <option value="{{ slot.time|time:'H:i:s' }}"
+                            {% if selected_time == slot.time|time:'H:i:s' or current_booking_time == slot.time %}selected{% endif %}
+                    {% if not slot.is_available %}disabled{% endif %}>
+                    {{ slot.time|time:"H:i" }} -
+                    {% if slot.is_available %}
+                    Свободно
+                    {% else %}
+                    Занято до {{ slot.end_time|time:"H:i" }}
+                    {% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Продолжительность -->
+            <div class="mb-3">
+                <label for="id_duration" class="form-label">Продолжительность (часы)</label>
+                <input type="number" name="duration" id="id_duration"
+                       class="form-control" min="1" max="4"
+                       value="{% if is_update %}{{ form.instance.duration }}{% else %}1{% endif %}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="id_person_count" class="form-label">Количество персон</label>
+                <input type="number" name="person_count" id="id_person_count"
+                       class="form-control" min="1" max="{{ table.number_of_seats }}"
+                       value="{% if is_update %}{{ form.instance.person_count }}{% else %}1{% endif %}" required>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">
+                Забронировать
+            </button>
+            <a href="{% url 'tables:tables' %}" class="btn btn-secondary w-100 mt-2">
+    Назад
+</a>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const dateInput = document.getElementById('id_date');
+
+        dateInput.addEventListener('change', function () {
+            const tableId = '{{ table.id }}';
+            const selectedDate = this.value;
+            const currentUrl = window.location.pathname;
+
+            // Определяем URL для перенаправления
+            let redirectUrl;
+            if (currentUrl.includes('update')) {
+                redirectUrl = `/booking/${tableId}/update/{{ object.pk }}/?date=${selectedDate}`;
+            } else {
+                redirectUrl = `/booking/${tableId}/create/?date=${selectedDate}`;
+            }
+
+            window.location.href = redirectUrl;
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'attendance/base.html' %}
+
+{% block title %}
+Bavaria Stube | Бронирование
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-center mb-4">Детали бронирования </h1>
+
+    <div class="bg-light p-4 rounded shadow-sm">
+        <p><strong>Имя клиента:</strong> {{ object.name }}</p>
+        <p><strong>Столик №:</strong> {{ object.table.numbers }}</p>
+        <p><strong>Дата бронирования:</strong> {{ object.date|date:"d.m.Y" }}</p>
+        <p><strong>Время:</strong> {{ object.time|time:"H:i" }}</p>
+        <p><strong>Длительность (часов):</strong> {{ object.duration }}</p>
+        <p><strong>Статус:</strong>
+            {% if object.status == 'ACTIVE' %}
+                <span class="badge bg-success">Активно</span>
+            {% elif object.status == 'CANCELLED' %}
+                <span class="badge bg-secondary">Отменено</span>
+            {% elif object.status == 'COMPLETED' %}
+                <span class="badge bg-info text-dark">Завершено</span>
+            {% else %}
+                <span class="badge bg-warning text-dark">{{ object.status }}</span>
+            {% endif %}
+        </p>
+
+        {% if object.comment %}
+        <p><strong>Комментарий:</strong> {{ object.comment }}</p>
+        {% endif %}
+
+        <hr>
+
+        <div class="d-flex justify-content-between">
+            {% if object.status != 'CANCELLED' %}
+                <a href="{% url 'booking:booking_update' object.pk %}" class="btn btn-warning">
+                    <i class="bi bi-pencil-square"></i> Редактировать
+                </a>
+                <a href="{% url 'booking:booking_cancel' object.pk %}" class="btn btn-danger">
+                    <i class="bi bi-x-circle"></i> Отменить бронь
+                </a>
+            {% else %}
+                <a href="{% url 'booking:booking_delete' object.pk %}" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Удалить
+                </a>
+            {% endif %}
+        </div>
+
+        <hr>
+
+        <p class="text-muted mb-1"><small>Создано: {{ object.created_at|date:"d.m.Y H:i" }}</small></p>
+        <p class="text-muted"><small>Последнее изменение: {{ object.updated_at|date:"d.m.Y H:i" }}</small></p>
+    </div>
+</div>
+{% endblock %}

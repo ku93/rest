@@ -20,10 +20,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "django_celery_beat",
     "phonenumber_field",
     "attendance",
     "users",
     'persons',
+    'booking',
+    'tables',
+    "widget_tweaks",
 ]
 
 MIDDLEWARE = [
@@ -119,6 +123,26 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://redis:6379",
+        "LOCATION": "redis://localhost:6379",
     }
+}
+
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379")
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+CELERY_TASK_ANNOTATIONS = {
+    "attendance.tasks.*": {
+        "default_retry_delay": 60,
+        "max_retries": 3,
+    }
+}
+CELERY_BEAT_SCHEDULE = {
+    "check-bookings-every-minute": {
+        "task": "booking.tasks.check_booking_endtimes",
+        "schedule": 60.0,
+    },
 }
