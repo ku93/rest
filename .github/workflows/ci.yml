@@ -108,9 +108,9 @@ jobs:
         - name: Deploy to Server
           run: |
             ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-              cd ~/restaurant
-              sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/restaurant:${{ github.sha }}
-              sudo docker stop restaurant || true
-              sudo docker rm restaurant || true
+              cd ~/rest
+              sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/rest:${{ github.sha }}
+              sudo docker stop rest || true
+              sudo docker rm rest || true
               sudo docker compose up --build -d
             EOF

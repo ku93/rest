@@ -38,6 +38,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -146,3 +147,4 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": 60.0,
     },
 }
+CSRF_TRUSTED_ORIGINS = ['http://*.127.0.0.1/', 'http://localhost',]
