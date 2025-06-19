@@ -1,0 +1,40 @@
+{% extends 'attendance/base.html' %}
+
+{% block title %}
+Bavaria Stube {{ object.name }}
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-center mb-4">{{ object.name }}</h1>
+
+    {% if object.image %}
+    <div class="text-center mb-4">
+        <img src="{{ object.image.url }}" alt="{{ object.name }}"
+             style="height: 250px; width: auto; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+    </div>
+    {% endif %}
+
+    <div class="bg-light p-4 rounded shadow-sm">
+        <p><strong>Описание услуги:</strong> {{ object.description }}</p>
+        <p><strong>Стоимость услуги:</strong> {{ object.price }} р.</p>
+
+        <div class="mt-4">
+            <div class="btn-group" role="group">
+                {% if perms.attendance.change_attendance %}
+                <a class="btn btn-warning" href="{% url 'attendance:attendance_update' attendance.pk %}" role="button">Редактировать</a>
+                {% endif %}
+                {% if perms.attendance.delete_attendance %}
+                <a class="btn btn-outline-danger" href="{% url 'attendance:attendance_delete' attendance.pk %}"
+                   role="button">Удалить</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <hr>
+
+        <p class="text-muted mb-1"><small>Последнее изменение: {{ object.updated_at }}</small></p>
+        <p class="text-muted"><small>Добавлен: {{ object.created_at }}</small></p>
+    </div>
+</div>
+{% endblock %}

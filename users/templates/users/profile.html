@@ -1,0 +1,270 @@
+{% extends 'attendance/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Bavaria Stube | Личный кабинет{% endblock %}
+
+{% block content %}
+<div style="display:flex; gap:2rem; padding: 1rem 0;">
+
+    <!-- Боковое меню -->
+    <nav style="min-width:220px; border-right: 3px solid var(--bavaria-gold); padding-right: 1rem;">
+        <ul style="list-style:none; padding:0; margin:0;">
+            <li style="margin-bottom:1rem;">
+                <a href="?tab=profile"
+                   class="nav-link {% if tab == 'profile' %}active{% endif %}"
+                   style="{% if tab == 'profile' %}font-weight:600; color: var(--bavaria-red); border-left: 4px solid var(--bavaria-red); padding-left: 0.5rem;{% else %}color: var(--bavaria-dark);{% endif %}">
+                    Анкета
+                </a>
+            </li>
+            <li style="margin-bottom:1rem;">
+                <a href="?tab=active_booking"
+                   class="nav-link {% if tab == 'active_booking' %}active{% endif %}"
+                   style="{% if tab == 'active_booking' %}font-weight:600; color: var(--bavaria-red); border-left: 4px solid var(--bavaria-red); padding-left: 0.5rem;{% else %}color: var(--bavaria-dark);{% endif %}">
+                    Моя бронь
+                </a>
+            </li>
+            <li>
+                <a href="?tab=booking_history"
+                   class="nav-link {% if tab == 'booking_history' %}active{% endif %}"
+                   style="{% if tab == 'booking_history' %}font-weight:600; color: var(--bavaria-red); border-left: 4px solid var(--bavaria-red); padding-left: 0.5rem;{% else %}color: var(--bavaria-dark);{% endif %}">
+                    История бронирования
+                </a>
+            </li>
+
+
+            {% if can_view_all_bookings %}
+            <li style="margin-top: 1rem;">
+                <a href="?tab=all_bookings"
+                   class="nav-link {% if tab == 'all_bookings' %}active{% endif %}"
+                   style="{% if tab == 'all_bookings' %}font-weight:600; color: var(--bavaria-red); border-left: 4px solid var(--bavaria-red); padding-left: 0.5rem;{% else %}color: var(--bavaria-dark);{% endif %}">
+                    Все брони
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <section
+            style="flex-grow:1; background-color:#fff; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+
+        {% if tab == 'profile' %}
+        <h2 class="section-title">Личный кабинет</h2>
+
+        {% if editable %}
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {{ password_form.non_field_errors }}
+
+            <table style="width:100%; border-collapse: separate; border-spacing: 0 1rem;">
+                {% for field in form %}
+                <tr>
+                    <th style="text-align:left; padding-right: 1rem; vertical-align: top; width: 180px;">
+                        {{ field.label_tag }}
+                    </th>
+                    <td>
+                        {{ field|add_class:"form-control" }}
+                        {% if field.help_text %}
+                        <small style="color:#666;">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% if field.errors %}
+                        <div style="color: var(--bavaria-red); margin-top: 0.25rem;">{{ field.errors|striptags }}</div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            <h3 style="margin-top: 2rem; color: var(--bavaria-red);">Смена пароля</h3>
+            <table style="width:100%; border-collapse: separate; border-spacing: 0 1rem;">
+                {% for field in password_form %}
+                <tr>
+                    <th style="text-align:left; padding-right: 1rem; vertical-align: top; width: 180px;">
+                        {{ field.label_tag }}
+                    </th>
+                    <td>
+                        {{ field|add_class:"form-control" }}
+                        {% if field.help_text %}
+                        <small style="color:#666;">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% if field.errors %}
+                        <div style="color: var(--bavaria-red); margin-top: 0.25rem;">{{ field.errors|striptags }}</div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            <div style="margin-top: 1.5rem;">
+                <button type="submit" class="btn-primary btn-custom">Сохранить</button>
+                <a href="?tab=profile" class="btn-outline-primary btn-custom" style="margin-left: 1rem;">Отмена</a>
+            </div>
+        </form>
+        {% else %}
+        <div style="line-height: 1.6; font-size: 1rem; color: var(--bavaria-dark);">
+            <p><strong>Имя пользователя:</strong> {{ user.username }}</p>
+            <p><strong>Электронная почта:</strong> {{ user.email }}</p>
+            <p><strong>Имя:</strong> {{ user.first_name }}</p>
+            <p><strong>Фамилия:</strong> {{ user.last_name }}</p>
+            <p><strong>Телефон:</strong> {{ user.phone_number }}</p>
+            <p><strong>Адрес:</strong> {{ user.address }}</p>
+        </div>
+        <a href="?tab=profile&edit=1" class="btn-primary btn-custom" style="margin-top: 1rem; display: inline-block;">Редактировать</a>
+        {% endif %}
+
+        {% elif tab == 'active_booking' %}
+        <h2 class="section-title">Моя бронь</h2>
+
+        {% if active_bookings %}
+        <table style="width:100%; border-collapse: collapse; margin-top: 1rem;">
+            <thead>
+            <tr style="background-color: var(--bavaria-gold); color: #fff;">
+                <th style="padding: 0.5rem; text-align: left;">Дата</th>
+                <th style="padding: 0.5rem; text-align: left;">Время</th>
+                <th style="padding: 0.5rem; text-align: left;">Столик</th>
+                <th style="padding: 0.5rem; text-align: left;">Статус</th>
+                <th style="padding: 0.5rem; text-align: left;">Действия</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for booking in active_bookings %}
+            <tr style="border-bottom: 1px solid #ddd; cursor: pointer;"
+                onclick="window.location='{% url 'booking:booking_detail' booking.pk %}'">
+                <td style="padding: 0.5rem;">{{ booking.date }}</td>
+                <td style="padding: 0.5rem;">{{ booking.time }}</td>
+                <td style="padding: 0.5rem;">{{ booking.table }}</td>
+                <td style="padding: 0.5rem;">{{ booking.get_status_display }}</td>
+                <td style="padding: 0.5rem; white-space: nowrap;">
+                    <!-- Здесь оставьте кнопки Изменить, Удалить, Отменить если нужны -->
+                    <a href="{% url 'booking:booking_update' booking.pk %}" class="btn-primary btn-custom btn-sm"
+                       style="margin-right: 0.5rem;">
+                        Изменить
+                    </a>
+                    <form action="{% url 'booking:booking_delete' booking.pk %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-outline-danger btn-custom btn-sm"
+                                onclick="return confirm('Вы действительно хотите удалить бронирование?');"
+                                style="margin-right: 0.5rem;">
+                            Удалить
+                        </button>
+                    </form>
+                    <form action="{% url 'booking:booking_cancel' booking.pk %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-outline-warning btn-custom btn-sm"
+                                onclick="return confirm('Вы действительно хотите отменить бронирование?');">
+                            Отменить
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>У вас нет активных бронирований.</p>
+        {% endif %}
+
+        {% elif tab == 'booking_history' %}
+        <h2 class="section-title">История бронирования</h2>
+
+        {% if booking_history %}
+        <table style="width:100%; border-collapse: collapse; margin-top: 1rem;">
+            <thead>
+            <tr style="background-color: var(--bavaria-gold); color: #fff;">
+                <th style="padding: 0.5rem; text-align: left;">Дата</th>
+                <th style="padding: 0.5rem; text-align: left;">Время</th>
+                <th style="padding: 0.5rem; text-align: left;">Столик</th>
+                <th style="padding: 0.5rem; text-align: left;">Статус</th>
+                <th style="padding: 0.5rem; text-align: left;">Действия</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for booking in booking_history %}
+            <tr style="border-bottom: 1px solid #ddd;">
+            <tr style="border-bottom: 1px solid #ddd; cursor: pointer;"
+                onclick="window.location='{% url 'booking:booking_detail' booking.pk %}'">
+                <td style="padding: 0.5rem;">{{ booking.date }}</td>
+                <td style="padding: 0.5rem;">{{ booking.time }}</td>
+                <td style="padding: 0.5rem;">{{ booking.table }}</td>
+                <td style="padding: 0.5rem;">{{ booking.get_status_display }}</td>
+                <td style="padding: 0.5rem; white-space: nowrap;">
+                    <form action="{% url 'booking:booking_delete' booking.pk %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-outline-danger btn-custom btn-sm"
+                                onclick="return confirm('Вы действительно хотите удалить бронирование?');"
+                                style="margin-right: 0.5rem;">
+                            Удалить
+                        </button>
+                    </form>
+
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>История бронирований пуста.</p>
+        {% endif %}
+
+        {% elif tab == 'all_bookings' and can_view_all_bookings %}
+        <h2 class="section-title">Все брони</h2>
+
+        {% if all_bookings %}
+        <table style="width:100%; border-collapse: collapse; margin-top: 1rem;">
+            <thead>
+            <tr style="background-color: var(--bavaria-gold); color: #fff;">
+                <th style="padding: 0.5rem; text-align: left;">Пользователь</th>
+                <th style="padding: 0.5rem; text-align: left;">Дата</th>
+                <th style="padding: 0.5rem; text-align: left;">Время</th>
+                <th style="padding: 0.5rem; text-align: left;">Столик</th>
+                <th style="padding: 0.5rem; text-align: left;">Статус</th>
+                <th style="padding: 0.5rem; text-align: left;">Действия</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for booking in all_bookings %}
+            <tr style="border-bottom: 1px solid #ddd; cursor: pointer;"
+                onclick="window.location='{% url 'booking:booking_detail' booking.pk %}'">
+                <td style="padding: 0.5rem;">{{ booking.date }}</td>
+                <td style="padding: 0.5rem;">{{ booking.time }}</td>
+                <td style="padding: 0.5rem;">{{ booking.table }}</td>
+                <td style="padding: 0.5rem;">{{ booking.get_status_display }}</td>
+                <td style="padding: 0.5rem; white-space: nowrap;">
+
+                    <a href="{% url 'booking:booking_update' booking.pk %}" class="btn-primary btn-custom btn-sm"
+                       style="margin-right: 0.5rem;">
+                        Изменить
+                    </a>
+                    <form action="{% url 'booking:booking_delete' booking.pk %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-outline-danger btn-custom btn-sm"
+                                onclick="return confirm('Вы действительно хотите удалить бронирование?');"
+                                style="margin-right: 0.5rem;">
+                            Удалить
+                        </button>
+                    </form>
+                    <form action="{% url 'booking:booking_cancel' booking.pk %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-outline-warning btn-custom btn-sm"
+                                onclick="return confirm('Вы действительно хотите отменить бронирование?');">
+                            Отменить
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Бронирований нет.</p>
+        {% endif %}
+
+        {% else %}
+        <p>Некорректный раздел.</p>
+        {% endif %}
+
+    </section>
+
+</div>
+{% endblock %}

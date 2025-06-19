@@ -1,0 +1,200 @@
+{% extends 'attendance/base.html' %}
+
+{% block title %} Bavaria Stube | Главная {% endblock %}
+
+{% block content %}
+<section class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-4 animate-fade">Добро пожаловать в Bavaria Stube</h1>
+        <p class="lead mb-5 animate-fade" style="animation-delay: 0.2s;">Настоящий вкус Баварии</p>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <h2 class="section-title text-center">О нашем ресторане</h2>
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4">
+                <img src="{% static 'img/186ad53bf0182a695af86.png' %}" alt="Интерьер ресторана"
+                     class="img-fluid rounded shadow">
+            </div>
+            <div class="col-lg-6 mb-4">
+                <h3 class="mb-4">Bavaria Stube — кусочек Баварии в вашем городе</h3>
+                <p class="lead">Основанный в 2025 году, наш ресторан воссоздает атмосферу традиционного баварского
+                    гасхауса.</p>
+                <p>Наш шеф-повар, уроженец Мюнхена, готовит блюда по старинным семейным рецептам, передаваемым из
+                    поколения в поколение. Мы гордимся тем, что используем только свежие, качественные ингредиенты,
+                    многие из которых импортируются непосредственно из Баварии.</p>
+                <a href="{% url 'persons:restaurant' %}" class="btn btn-outline-primary mt-3">Узнать больше</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="section-title text-center">Наши услуги</h2>
+
+        {% if services %}
+        <div class="swiper mySwiper">
+            <div class="swiper-wrapper">
+                {% for attendance in services %}
+                <div class="swiper-slide">
+                    <div class="card text-center d-flex flex-column"
+                         style="height: 480px; width: 100%; max-width: 300px;">
+
+                        <div class="card-header text-center">
+                            <i class="bi bi-{{ attendance.icon|default:'cup-hot' }} fs-1"></i>
+                        </div>
+                        <div class="card-body text-center">
+                            <a href="{% url 'attendance:attendance-detail' attendance.pk %}"
+                               class="text-reset text-decoration-none">
+                                {% if attendance.image %}
+                                <img src="{{ attendance.image.url }}" alt="{{ attendance.name|default:'Услуга' }}"
+                                     class="img-fluid mb-3 rounded" style="max-height: 150px;">
+                                {% endif %}
+                                <h5 class="card-title">{{ attendance.name|default:"Услуга" }}</h5>
+                                <p class="card-text">{{ attendance.description|default:"Описание услуги временно отсутствует" }}</p>
+
+                                {% if attendance.price %}
+                                <div class="mt-3">
+                                    <span class="badge bg-primary rounded-pill">
+                                        от {{ attendance.price }} ₽
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+
+            <div class="swiper-pagination"></div>
+        </div>
+        {% else %}
+        <div class="alert alert-info text-center">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            В настоящее время информация об услугах обновляется. Пожалуйста, проверьте позже или свяжитесь с нами
+            для уточнения.
+        </div>
+        {% endif %}
+    </div>
+
+    {% if perms.attendance.can_add_attendance %}
+    <div class="container" style="max-width: 300px;">
+        <div class="text-center mt-2 mb-4">
+            <a href="{% url 'attendance:attendance_create' %}" class="btn btn-warning w-100">Добавить услугу</a>
+        </div>
+    </div>
+    {% endif %}
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <h2 class="section-title text-center">Контакты</h2>
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header card-custom">
+                        <i class="bi bi-map me-2"></i> Как нас найти
+                    </div>
+                    <div class="ratio ratio-16x9">
+                        <iframe src="https://yandex.ru/map-widget/v1/?ll=40.061345%2C44.593007&z=16.4" frameborder="1"
+                                allowfullscreen="true"></iframe>
+                    </div>
+                    <div>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="bi bi-geo-alt me-2"></i>г. Майкоп, СНТ Новая Весна. Маршрутка 26.
+                                Автобус 26А. Конечная остановка
+                            </li>
+                            <li class="mb-2"><i class="bi bi-telephone me-2"></i>Телефон: <a href="tel:+79529866981">+7(952)986-69-81</a>
+                            </li>
+                            <li class="mb-2"><i class="bi bi-envelope me-2"></i>email: <a
+                                    href="mailto:tkachev1993adg@yandex.ru">tkachev1993adg@yandex.ru</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header card-custom">
+                        <i class="bi bi-chat-left-text me-2"></i> Обратная связь
+                    </div>
+                    <div class="card-body">
+                        {% if success %}
+                        <div class="alert alert-success" role="alert">
+                            Спасибо! Ваше сообщение отправлено.
+                        </div>
+                        {% endif %}
+
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                {{ form.name.label_tag }}
+                                {{ form.name }}
+                                {% for error in form.name.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.email.label_tag }}
+                                {{ form.email }}
+                                {% for error in form.email.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.message.label_tag }}
+                                {{ form.message }}
+                                {% for error in form.message.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <button type="submit" class="btn btn-primary">Отправить</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const swiper = new Swiper(".mySwiper", {
+            slidesPerView: 3,
+            spaceBetween: 30,
+            navigation: {
+                nextEl: ".swiper-button-next",
+                prevEl: ".swiper-button-prev",
+            },
+            pagination: {
+                el: ".swiper-pagination",
+                clickable: true,
+            },
+            breakpoints: {
+                320: {
+                    slidesPerView: 1,
+                    spaceBetween: 10,
+                },
+                576: {
+                    slidesPerView: 2,
+                    spaceBetween: 20,
+                },
+                992: {
+                    slidesPerView: 3,
+                    spaceBetween: 30,
+                },
+            },
+        });
+    });
+</script>
+
+{% endblock %}
