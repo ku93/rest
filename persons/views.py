@@ -64,6 +64,7 @@ class EmployeeCreateView(PermissionRequiredMixin, CreateView):
     model = Employee
     form_class = EmployeeForm
     success_url = reverse_lazy("persons:restaurant")
+    permission_required = 'employees.add_employee'
 
     def form_valid(self, form):
         """

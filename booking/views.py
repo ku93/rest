@@ -222,7 +222,7 @@ class BookingCreateView(BookingBaseView, CreateView):
         return context
 
     def get_success_url(self):
-        return reverse_lazy("users:profile") + "?tab=active_bookings"
+        return reverse_lazy("users:profile")
 
 
 class BookingUpdateView(BookingBaseView, UpdateView):

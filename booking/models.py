@@ -87,6 +87,9 @@ class Booking(models.Model):
         if self.time is None:
             raise ValidationError("Время бронирования обязательно.")
 
+        if self.time < timezone.localtime().time():
+            raise ValidationError("Нельзя бронировать на прошедшее время.")
+
         start_time = self.time
         end_datetime = datetime.datetime.combine(self.date, start_time) + datetime.timedelta(hours=self.duration)
         end_time = end_datetime.time()
