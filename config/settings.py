@@ -154,4 +154,4 @@ CELERY_BEAT_SCHEDULE = {
 
 CORS_ALLOWED_ORIGINS = ['http://89.169.178.244', 'http://127.0.0.1', 'http://localhost',]
 CSRF_TRUSTED_ORIGINS = ['http://*.89.169.178.244/', 'http://127.0.0.1/', 'http://localhost',]
-CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = True
