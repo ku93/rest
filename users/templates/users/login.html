@@ -6,6 +6,7 @@
 <div class="container h-100 d-flex align-items-center justify-content-center">
     <form class="row w-50" method="post" action="{% url 'users:login' %}">
         {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
         <div class="card w-100">
             <div class="card-header text-center" style="background-color: var(--bavaria-red); color: white;">
                 <h5 class="card-title mt-2" style="min-height: 40px;">

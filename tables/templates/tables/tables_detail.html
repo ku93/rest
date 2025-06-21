@@ -25,7 +25,8 @@ Bavaria Stube | {{ object.name }}
 
             <form method="get" id="date-form" class="mb-4">
                 <label for="date">Выберите дату:</label>
-                <input type="date" id="date" name="date" value="{{ date|date:'Y-m-d' }}" min="{{ today|date:'Y-m-d' }}" max="{{ max_date }}">
+                <input type="date" id="date" name="date" value="{{ date|date:'Y-m-d' }}" min="{{ today|date:'Y-m-d' }}"
+                       max="{{ max_date }}">
                 <button type="submit" class="btn btn-primary btn-sm ms-2">Показать</button>
             </form>
 
@@ -41,19 +42,17 @@ Bavaria Stube | {{ object.name }}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         {{ slot.time }}
                         {% if slot.status == 'free' %}
-                            <span class="badge bg-success">Свободно</span>
-                            {% if user.is_authenticated %}
-                                <a href="{% url 'booking:booking_create' object.numbers %}?date={{ date|date:'Y-m-d' }}&time={{ slot.time }}"
-                                   class="btn btn-sm btn-outline-success ms-3">Забронировать</a>
-                            {% else %}
-                                {% url 'users:login' as login_url %}
-                                {% with booking_url=request.path|add:"?date="|add:date|date:"Y-m-d"|add:"&time="|add:slot.time %}
-                                    <a href="{{ login_url }}?next={{ booking_url|urlencode }}"
-                                       class="btn btn-sm btn-outline-success ms-3">Забронировать</a>
-                                {% endwith %}
-                            {% endif %}
+                        <span class="badge bg-success">Свободно</span>
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'booking:booking_create' object.numbers %}?date={{ date|date:'Y-m-d' }}&time={{ slot.time|urlencode }}"
+                           class="btn btn-sm btn-outline-success ms-3">Забронировать</a>
                         {% else %}
-                            <span class="badge bg-danger">Занято</span>
+                        {% url 'users:login' as login_url %}
+                        <a href="{{ login_url }}?next={% url 'tables:tables_detail' object.pk %}?date={{ date|date:'Y-m-d' }}&time={{ slot.time|urlencode }}"
+                           class="btn btn-sm btn-outline-success ms-3">Забронировать</a>
+                        {% endif %}
+                        {% else %}
+                        <span class="badge bg-danger">Занято</span>
                         {% endif %}
                     </li>
                     {% empty %}
@@ -88,71 +87,71 @@ Bavaria Stube | {{ object.name }}
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const dateForm = document.getElementById('date-form');
-    const dateInput = document.getElementById('date');
-    const slotsContainer = document.getElementById('slots-container');
-    const loadingSpinner = document.getElementById('loading-spinner');
-    const selectedDateSpan = document.getElementById('selected-date');
+    document.addEventListener('DOMContentLoaded', function () {
+        const dateForm = document.getElementById('date-form');
+        const dateInput = document.getElementById('date');
+        const slotsContainer = document.getElementById('slots-container');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const selectedDateSpan = document.getElementById('selected-date');
 
-    // Функция для получения CSRF-токена
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
+        // Функция для получения CSRF-токена
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
                 }
             }
+            return cookieValue;
         }
-        return cookieValue;
-    }
 
-    dateForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        loadSlots(dateInput.value);
-    });
-
-    function loadSlots(date) {
-        loadingSpinner.style.display = 'block';
-        slotsContainer.style.display = 'none';
-
-        // Форматируем дату из "YYYY-MM-DD" в "DD.MM.YYYY"
-        const formattedDate = date.split('-').reverse().join('.');
-        selectedDateSpan.textContent = formattedDate;
-
-        const url = `{% url 'tables:tables_detail' object.pk %}?date=${date}`;
-
-        fetch(url, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': getCookie('csrftoken')  // Добавляем CSRF-токен
-            },
-            credentials: 'include'  // Важно для передачи cookies
-        })
-        .then(response => response.text())
-        .then(html => {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            const newSlotsContainer = doc.getElementById('slots-container');
-            if (newSlotsContainer) {
-                slotsContainer.innerHTML = newSlotsContainer.innerHTML;
-            }
-
-            loadingSpinner.style.display = 'none';
-            slotsContainer.style.display = 'block';
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            loadingSpinner.style.display = 'none';
-            slotsContainer.style.display = 'block';
-            slotsContainer.innerHTML = '<div class="alert alert-danger">Ошибка загрузки данных. Пожалуйста, попробуйте еще раз.</div>';
+        dateForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            loadSlots(dateInput.value);
         });
-    }
-});
+
+        function loadSlots(date) {
+            loadingSpinner.style.display = 'block';
+            slotsContainer.style.display = 'none';
+
+            // Форматируем дату из "YYYY-MM-DD" в "DD.MM.YYYY"
+            const formattedDate = date.split('-').reverse().join('.');
+            selectedDateSpan.textContent = formattedDate;
+
+            const url = `{% url 'tables:tables_detail' object.pk %}?date=${date}`;
+
+            fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': getCookie('csrftoken')  // Добавляем CSRF-токен
+                },
+                credentials: 'include'  // Важно для передачи cookies
+            })
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newSlotsContainer = doc.getElementById('slots-container');
+                    if (newSlotsContainer) {
+                        slotsContainer.innerHTML = newSlotsContainer.innerHTML;
+                    }
+
+                    loadingSpinner.style.display = 'none';
+                    slotsContainer.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loadingSpinner.style.display = 'none';
+                    slotsContainer.style.display = 'block';
+                    slotsContainer.innerHTML = '<div class="alert alert-danger">Ошибка загрузки данных. Пожалуйста, попробуйте еще раз.</div>';
+                });
+        }
+    });
 </script>
 
 {% endblock %}

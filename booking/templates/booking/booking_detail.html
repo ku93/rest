@@ -37,9 +37,13 @@ Bavaria Stube | Бронирование
                 <a href="{% url 'booking:booking_update' object.pk %}" class="btn btn-warning">
                     <i class="bi bi-pencil-square"></i> Редактировать
                 </a>
-                <a href="{% url 'booking:booking_cancel' object.pk %}" class="btn btn-danger">
-                    <i class="bi bi-x-circle"></i> Отменить бронь
-                </a>
+                <form action="{% url 'booking:booking_cancel' booking.pk %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-outline-warning btn-custom btn-sm"
+                                onclick="return confirm('Вы действительно хотите отменить бронирование?');">
+                            Отменить
+                        </button>
+                    </form>
             {% else %}
                 <a href="{% url 'booking:booking_delete' object.pk %}" class="btn btn-danger">
                     <i class="bi bi-trash"></i> Удалить

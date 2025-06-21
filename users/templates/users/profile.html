@@ -136,7 +136,7 @@
                 <td style="padding: 0.5rem;">{{ booking.table }}</td>
                 <td style="padding: 0.5rem;">{{ booking.get_status_display }}</td>
                 <td style="padding: 0.5rem; white-space: nowrap;">
-                    <!-- Здесь оставьте кнопки Изменить, Удалить, Отменить если нужны -->
+
                     <a href="{% url 'booking:booking_update' booking.pk %}" class="btn-primary btn-custom btn-sm"
                        style="margin-right: 0.5rem;">
                         Изменить

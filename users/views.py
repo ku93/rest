@@ -29,23 +29,26 @@ def login_view(request):
 
     Обрабатывает POST-запросы с формой входа, аутентифицирует пользователя
     по имени пользователя, email или телефону и паролю.
-    При успешной аутентификации выполняет вход и перенаправляет на главную страницу.
+    При успешной аутентификации выполняет вход и перенаправляет:
+    - На страницу, указанную в параметре 'next'
+    - Или на главную страницу (если 'next' нет)
     При ошибке отображает форму с сообщением об ошибке.
     """
     if request.method == "POST":
         form = LoginForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data["username_or_email_or_phone"]
-            password = form.cleaned_data["password"]
-            user = authenticate(request, username=username, password=password)
+            user = authenticate(
+                request,
+                username=form.cleaned_data["username_or_email_or_phone"],
+                password=form.cleaned_data["password"]
+            )
             if user is not None:
                 login(request, user)
-                return redirect("{% url 'attendance:index' %}")
-            else:
-                form.add_error(None, "Неверные данные для входа")
+                next_url = request.POST.get('next') or 'attendance:index'
+                return redirect(next_url)
     else:
         form = LoginForm()
-    return render(request, "users/login.html", {"form": form})
+    return render(request, "users/login.html", {"form": form, "next": request.GET.get('next')})
 
 
 class UserCreatorView(CreateView):
