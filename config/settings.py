@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "django_celery_beat",
+    'corsheaders',
     "phonenumber_field",
     "attendance",
     "users",
@@ -39,6 +40,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -147,4 +149,7 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": 60.0,
     },
 }
-CSRF_TRUSTED_ORIGINS = ['http://*.89.169.178.244/', 'http://*.127.0.0.1/', 'http://localhost',]
+
+CORS_ALLOWED_ORIGINS = ['http://89.169.178.244/', 'http://127.0.0.1/', 'http://localhost',]
+CSRF_TRUSTED_ORIGINS = ['http://89.169.178.244/', 'http://127.0.0.1/', 'http://localhost',]
+CORS_ALLOW_ALL_ORIGINS = False
