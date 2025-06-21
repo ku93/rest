@@ -152,8 +152,8 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
-CORS_ALLOWED_ORIGINS = ['http://89.169.178.244', 'http://127.0.0.1', 'http://localhost',]
-CSRF_TRUSTED_ORIGINS = ['http://*.89.169.178.244/', 'http://127.0.0.1/', 'http://localhost',]
+CORS_ALLOWED_ORIGINS = ['*']
+CSRF_TRUSTED_ORIGINS = ['*']
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
     "content-type",
