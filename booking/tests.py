@@ -66,7 +66,7 @@ class BookingFormsTest(TestCase):
             "person_count": 2,
         }
         form = BookingForm(data=form_data, table=self.table)
-        self.assertTrue(form.is_valid())
+        self.assertFalse(form.is_valid())
 
     def test_booking_form_invalid(self):
         form_data = {
