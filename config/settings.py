@@ -151,19 +151,7 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = False
-
-SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
-
 CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_HEADERS = [
-    "content-type",
-    "authorization",
-    "x-auth-token",
-]
 
 CSRF_COOKIE_SECURE = False
 CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1', 'http://89.169.178.244']
